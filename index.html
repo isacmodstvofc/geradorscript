@@ -8,16 +8,15 @@
 <style>
 body{
     margin:0;
-    height:100vh;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
     background:radial-gradient(circle at top,#0f172a,#020617 70%);
-    font-family:Orbitron, sans-serif;
+    font-family:Arial, sans-serif;
     color:#38bdf8;
 }
 
-/* CAIXA PRINCIPAL */
 .container{
     width:90%;
     max-width:600px;
@@ -25,68 +24,50 @@ body{
     border-radius:25px;
     border:2px solid #38bdf8;
     box-shadow:0 0 25px #38bdf8;
-    background:rgba(2,6,23,0.9);
+    background:rgba(2,6,23,0.95);
 }
 
-/* TÍTULO */
 h1{
     text-align:center;
     margin-bottom:25px;
-    text-shadow:0 0 10px #38bdf8;
 }
 
-/* INPUTS */
 input{
     width:100%;
-    padding:15px;
+    padding:12px;
     margin-bottom:15px;
-    border-radius:15px;
+    border-radius:12px;
     border:2px solid #38bdf8;
     background:#020617;
     color:#38bdf8;
     outline:none;
-    font-size:16px;
-    box-shadow:0 0 10px rgba(56,189,248,.5);
+    font-size:15px;
 }
 
-/* BOTÕES */
 button{
     width:100%;
-    padding:15px;
+    padding:14px;
     border:none;
-    border-radius:20px;
-    font-size:16px;
+    border-radius:15px;
+    font-size:15px;
     font-weight:bold;
     cursor:pointer;
     margin-bottom:15px;
     transition:0.3s;
 }
 
-/* BOTÃO CRIAR CAMPOS */
 .btnCampos{
     background:linear-gradient(90deg,#38bdf8,#22c55e);
     color:#000;
 }
 
-.btnCampos:hover{
-    transform:scale(1.05);
-    box-shadow:0 0 20px #22c55e;
-}
-
-/* BOTÃO GERAR */
 .btnGerar{
     background:linear-gradient(90deg,#22c55e,#38bdf8);
     color:#000;
 }
 
-.btnGerar:hover{
-    transform:scale(1.05);
-    box-shadow:0 0 20px #38bdf8;
-}
-
-/* CAMPOS DINÂMICOS */
-#camposFuncoes input{
-    margin-top:10px;
+button:hover{
+    transform:scale(1.03);
 }
 </style>
 </head>
@@ -97,7 +78,6 @@ button{
     <h1>🛠 Gerador Profissional Script GG</h1>
 
     <input type="text" id="nomeScript" placeholder="Nome do Script">
-
     <input type="number" id="qtdFuncoes" placeholder="Quantidade de funções">
 
     <button class="btnCampos" onclick="criarCampos()">Criar Campos</button>
@@ -108,28 +88,88 @@ button{
 </div>
 
 <script>
+
+function sanitizar(nome){
+    return nome
+        .replace(/\s+/g,"_")
+        .replace(/[^\w]/g,"");
+}
+
 function criarCampos(){
-    let qtd = document.getElementById("qtdFuncoes").value;
+    let qtd = parseInt(document.getElementById("qtdFuncoes").value);
     let container = document.getElementById("camposFuncoes");
     container.innerHTML = "";
 
+    if(!qtd || qtd <= 0){
+        alert("Digite uma quantidade válida!");
+        return;
+    }
+
     for(let i=1;i<=qtd;i++){
-        container.innerHTML += 
-        `<input type="text" placeholder="Nome da função ${i}" class="funcao">`;
+        let input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Nome da função "+i;
+        input.className = "funcao";
+        container.appendChild(input);
     }
 }
 
 function gerarScript(){
-    let nome = document.getElementById("nomeScript").value || "Script_Base";
+    let nome = document.getElementById("nomeScript").value.trim();
+    if(nome === "") nome = "Script_Base";
+    nome = sanitizar(nome);
+
     let funcoes = document.querySelectorAll(".funcao");
 
-    let script = "-- 🔥 "+nome+" 🔥\n\n";
+    if(funcoes.length === 0){
+        alert("Crie as funções primeiro!");
+        return;
+    }
+
+    let script = "";
+    script += "-- =====================================\n";
+    script += "-- 🔥 "+nome+" 🔥\n";
+    script += "-- Script Base Profissional\n";
+    script += "-- =====================================\n\n";
+    script += "gg.setVisible(false)\n";
+    script += "local SCRIPT_ATIVO = true\n\n";
+
+    // MENU
+    script += "function menuPrincipal()\n";
+    script += "    local menu = gg.choice({\n";
+
+    funcoes.forEach(f=>{
+        let nomeFunc = sanitizar(f.value || "funcao");
+        script += '        "🔹 '+nomeFunc+'",\n';
+    });
+
+    script += '        "❌ Sair"\n';
+    script += "    }, nil, \""+nome+"\")\n\n";
 
     funcoes.forEach((f,i)=>{
-        script += "function "+f.value+"()\n";
-        script += "   gg.alert('Função "+f.value+"')\n";
+        let nomeFunc = sanitizar(f.value || "funcao"+(i+1));
+        script += "    if menu == "+(i+1)+" then "+nomeFunc+"() end\n";
+    });
+
+    script += "    if menu == "+(funcoes.length+1)+" then os.exit() end\n";
+    script += "end\n\n";
+
+    // FUNÇÕES
+    funcoes.forEach((f,i)=>{
+        let nomeFunc = sanitizar(f.value || "funcao"+(i+1));
+        script += "function "+nomeFunc+"()\n";
+        script += "    gg.alert(\"Função: "+nomeFunc+"\")\n";
         script += "end\n\n";
     });
+
+    // LOOP
+    script += "while true do\n";
+    script += "    if gg.isVisible(true) then\n";
+    script += "        gg.setVisible(false)\n";
+    script += "        menuPrincipal()\n";
+    script += "    end\n";
+    script += "    gg.sleep(100)\n";
+    script += "end\n";
 
     let blob = new Blob([script], {type:"text/plain"});
     let link = document.createElement("a");
@@ -137,6 +177,7 @@ function gerarScript(){
     link.download = nome+".lua";
     link.click();
 }
+
 </script>
 
 </body>
