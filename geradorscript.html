@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador Profissional Script GG</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle at top,#0f172a,#020617 70%);
+    font-family:Orbitron, sans-serif;
+    color:#38bdf8;
+}
+
+/* CAIXA PRINCIPAL */
+.container{
+    width:90%;
+    max-width:600px;
+    padding:30px;
+    border-radius:25px;
+    border:2px solid #38bdf8;
+    box-shadow:0 0 25px #38bdf8;
+    background:rgba(2,6,23,0.9);
+}
+
+/* TÍTULO */
+h1{
+    text-align:center;
+    margin-bottom:25px;
+    text-shadow:0 0 10px #38bdf8;
+}
+
+/* INPUTS */
+input{
+    width:100%;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:15px;
+    border:2px solid #38bdf8;
+    background:#020617;
+    color:#38bdf8;
+    outline:none;
+    font-size:16px;
+    box-shadow:0 0 10px rgba(56,189,248,.5);
+}
+
+/* BOTÕES */
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:20px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:15px;
+    transition:0.3s;
+}
+
+/* BOTÃO CRIAR CAMPOS */
+.btnCampos{
+    background:linear-gradient(90deg,#38bdf8,#22c55e);
+    color:#000;
+}
+
+.btnCampos:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px #22c55e;
+}
+
+/* BOTÃO GERAR */
+.btnGerar{
+    background:linear-gradient(90deg,#22c55e,#38bdf8);
+    color:#000;
+}
+
+.btnGerar:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px #38bdf8;
+}
+
+/* CAMPOS DINÂMICOS */
+#camposFuncoes input{
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🛠 Gerador Profissional Script GG</h1>
+
+    <input type="text" id="nomeScript" placeholder="Nome do Script">
+
+    <input type="number" id="qtdFuncoes" placeholder="Quantidade de funções">
+
+    <button class="btnCampos" onclick="criarCampos()">Criar Campos</button>
+
+    <div id="camposFuncoes"></div>
+
+    <button class="btnGerar" onclick="gerarScript()">⚡ Gerar Script & Baixar</button>
+</div>
+
+<script>
+function criarCampos(){
+    let qtd = document.getElementById("qtdFuncoes").value;
+    let container = document.getElementById("camposFuncoes");
+    container.innerHTML = "";
+
+    for(let i=1;i<=qtd;i++){
+        container.innerHTML += 
+        `<input type="text" placeholder="Nome da função ${i}" class="funcao">`;
+    }
+}
+
+function gerarScript(){
+    let nome = document.getElementById("nomeScript").value || "Script_Base";
+    let funcoes = document.querySelectorAll(".funcao");
+
+    let script = "-- 🔥 "+nome+" 🔥\n\n";
+
+    funcoes.forEach((f,i)=>{
+        script += "function "+f.value+"()\n";
+        script += "   gg.alert('Função "+f.value+"')\n";
+        script += "end\n\n";
+    });
+
+    let blob = new Blob([script], {type:"text/plain"});
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = nome+".lua";
+    link.click();
+}
+</script>
+
+</body>
+</html>
